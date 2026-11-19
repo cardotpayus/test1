@@ -30,9 +30,12 @@ fun formatDuration(ms: Long): String {
     }
 }
 
-fun formatMoney(amount: Double, currency: String): String = when (currency.uppercase()) {
-    "CNY", "¥" -> "¥%.2f".format(amount)
-    "USD", "$" -> "$%.2f".format(amount)
-    "EUR" -> "€%.2f".format(amount)
-    else -> "%.2f %s".format(amount, currency)
+fun formatMoney(amount: Double, currency: String): String {
+    val us = java.util.Locale.US
+    return when (currency.uppercase()) {
+        "CNY", "¥" -> String.format(us, "¥%.2f", amount)
+        "USD", "$" -> String.format(us, "$%.2f", amount)
+        "EUR" -> String.format(us, "€%.2f", amount)
+        else -> String.format(us, "%.2f %s", amount, currency)
+    }
 }

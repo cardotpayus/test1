@@ -75,6 +75,12 @@ class SnapshotStore(context: Context) {
     fun save(accountId: String, snapshot: QuotaSnapshot, error: String?) {
         prefs.edit()
             .putString("snap_$accountId", json.encodeToString(snapshot))
+            .apply()
+        saveError(accountId, error)
+    }
+
+    fun saveError(accountId: String, error: String?) {
+        prefs.edit()
             .putString("err_$accountId", error)
             .apply()
     }

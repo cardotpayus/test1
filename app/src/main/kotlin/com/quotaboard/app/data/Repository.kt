@@ -60,8 +60,8 @@ class Repository(
             }
         } catch (e: Exception) {
             val msg = e.message ?: e.javaClass.simpleName
-            snapshots.save(accountId, state.snapshot ?: emptySnapshot(), msg)
-            update(accountId) { it.copy(lastError = msg, refreshing = false) }
+            snapshots.saveError(accountId, msg)
+            update(accountId) { it.copy(lastError = msg, updatedMs = null, refreshing = false) }
         }
     }
 

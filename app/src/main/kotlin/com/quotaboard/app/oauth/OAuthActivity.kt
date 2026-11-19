@@ -29,21 +29,35 @@ class OAuthActivity : ComponentActivity() {
 
         val flow = OAuthService.buildAuthorizeUrl(config)
         val redirectUri = Uri.parse(config.redirectUri)
+        val authorizeHost = Uri.parse(config.authorizeUrl).host
 
-        fun isRedirect(url: String): Boolean {
-            val u = Uri.parse(url)
-            if (u.scheme != redirectUri.scheme) return false
+        fun isRedirect(uri: Uri): Boolean {
+            if (!uri.scheme.isNullOrBlank() && uri.scheme != redirectUri.scheme) return false
             if (redirectUri.host == "localhost") {
-                if (u.host != "localhost" && u.host != "127.0.0.1") {
-                    if (u.host != redirectUri.host) return false
-                }
-            } else if (u.host != redirectUri.host) return false
-            return true
+                return uri.host == "localhost" || uri.host == "127.0.0.1"
+            }
+            return uri.host == redirectUri.host
+        }
+
+        fun isAllowed(uri: Uri): Boolean {
+            val host = uri.host ?: return false
+            return host == authorizeHost ||
+                host.endsWith(".$authorizeHost") ||
+                host.endsWith(".anthropic.com") ||
+                host.endsWith(".openai.com") ||
+                host.endsWith(".chatgpt.com") ||
+                host.endsWith(".claude.ai")
         }
 
         val webView = WebView(this).apply {
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
+            settings.allowFileAccess = false
+            settings.allowContentAccess = false
+            settings.allowUniversalAccessFromFileURLs = false
+            settings.allowFileAccessFromFileURLs = false
+            settings.displayZoomControls = false
+            settings.setSupportMultipleWindows(false)
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -53,32 +67,37 @@ class OAuthActivity : ComponentActivity() {
                     view: WebView?,
                     request: WebResourceRequest?,
                 ): Boolean {
-                    val url = request?.url?.toString() ?: return false
-                    if (!isRedirect(url)) return false
-                    val code = OAuthService.extractCode(url, flow.state)
-                    if (code != null) {
+                    val uri = request?.url ?: return false
+                    val url = uri.toString()
+                    if (isRedirect(uri)) {
+                        val code = OAuthService.extractCode(url, flow.state)
                         lifecycleScope.launch {
                             val result = try {
-                                val secrets = OAuthService.exchangeCode(config, code, flow.verifier)
-                                (application as QuotaApp).credentialStore.saveOAuthDraft(providerId, secrets)
-                                "ok"
+                                if (code == null) {
+                                    "回调缺少授权码或 state 不匹配"
+                                } else {
+                                    val secrets = OAuthService.exchangeCode(config, code, flow.verifier)
+                                    (application as QuotaApp).credentialStore.saveOAuthDraft(providerId, secrets)
+                                    "ok"
+                                }
                             } catch (e: Exception) {
                                 "登录失败：${e.message}"
                             }
                             status.value = status.value + mapOf(providerId to result)
                             finish()
                         }
-                    } else {
-                        lifecycleScope.launch {
-                            status.value = status.value + mapOf(providerId to "回调缺少授权码或 state 不匹配")
-                            finish()
-                        }
+                        return true
                     }
-                    return true
+                    if (!isAllowed(uri)) return true
+                    return false
                 }
             }
         }
         setContentView(webView)
         webView.loadUrl(flow.authorizeUrl)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

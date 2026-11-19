@@ -65,6 +65,7 @@ class AppViewModel(val repo: Repository, private val app: QuotaApp) : ViewModel(
         thenRefresh: Boolean = true,
     ): Account {
         val account = repo.addAccount(providerId, label, authMethod, secrets, extra)
+        _demoMode.value = false
         if (thenRefresh) refreshOne(account.id)
         return account
     }

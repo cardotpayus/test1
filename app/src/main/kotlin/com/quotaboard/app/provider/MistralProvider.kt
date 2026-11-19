@@ -28,23 +28,7 @@ class MistralProvider : QuotaProvider {
         val root = Http.parseObject(body)
         val balance = root.doubleValue("credit_balance")
             ?: throw ProviderException("未能解析 credit_balance：${body.take(200)}")
-        val unsupported = mutableListOf<String>()
-        val windows = mutableListOf<QuotaWindow>()
-        val budget = root.stringValue("monthly_budget")
-        budget?.toDoubleOrNull()?.takeIf { it > 0 }?.let { b ->
-            root.stringValue("month_started_at")?.let { start ->
-                windows.add(
-                    QuotaWindow(
-                        kind = WindowKind.MONTHLY,
-                        usedAmount = (b - balance),
-                        limitAmount = b,
-                        resetsAtMs = null,
-                    )
-                )
-            }
-        }
         return QuotaSnapshot(
-            windows = windows,
             payg = PayAsYouGo(balanceAmount = balance, currency = "EUR"),
             fetchedAtMs = System.currentTimeMillis(),
         )

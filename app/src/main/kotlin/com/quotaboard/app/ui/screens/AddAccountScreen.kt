@@ -64,17 +64,26 @@ fun AddAccountScreen(
     val context = LocalContext.current
     val oauthStatus by vm.oauthStatus.collectAsState()
 
+    LaunchedEffect(Unit) {
+        OAuthActivity.status.value = emptyMap()
+    }
+
     LaunchedEffect(oauthStatus) {
         val p = provider ?: return@LaunchedEffect
-        val result = oauthStatus[p.id]
-        if (result == "ok") {
-            val draft = vm.takeOAuthDraft(p.id)
-            if (draft != null) {
-                vm.addAccount(p.id, label, AuthMethod.OAUTH, draft, emptyMap())
-                onDone()
+        when (val result = oauthStatus[p.id]) {
+            null -> {}
+            "ok" -> {
+                OAuthActivity.status.value = oauthStatus - p.id
+                val draft = vm.takeOAuthDraft(p.id)
+                if (draft != null) {
+                    vm.addAccount(p.id, label, AuthMethod.OAUTH, draft, emptyMap())
+                    onDone()
+                }
             }
-        } else if (result != null && result != "ok") {
-            error = result
+            else -> {
+                OAuthActivity.status.value = oauthStatus - p.id
+                error = result
+            }
         }
     }
 
