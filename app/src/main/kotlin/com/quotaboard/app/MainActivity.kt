@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val app = application as QuotaApp
         setContent {
-            MaterialTheme {
+            com.quotaboard.app.ui.QuotaBoardTheme {
                 Surface {
                     val vm: AppViewModel = viewModel(factory = AppViewModel.Factory(app))
                     AppNavHost(vm)

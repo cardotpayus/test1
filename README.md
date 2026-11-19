@@ -8,7 +8,7 @@
 
 ## 技术栈
 
-Kotlin · Jetpack Compose · Material 3 · minSdk 26 · OkHttp（Retrofit 兼容的请求封装）· kotlinx-serialization
+Kotlin · Jetpack Compose · Material 3 Expressive（MaterialExpressiveTheme + Expressive 动效 + 波浪进度条）· minSdk 26 · OkHttp（Retrofit 兼容的请求封装）· kotlinx-serialization
 
 ## 构成
 

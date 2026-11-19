@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
@@ -91,7 +92,7 @@ fun HomeScreen(
                     }
                     Box {
                         IconButton(onClick = { menuOpen = true }) {
-                            Icon(Icons.Default.Add, contentDescription = "添加账号")
+                            Icon(Icons.Filled.MoreVert, contentDescription = "菜单")
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
@@ -105,6 +106,16 @@ fun HomeScreen(
                         }
                     }
                 },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                ),
+            )
+        },
+        floatingActionButton = {
+            androidx.compose.material3.ExtendedFloatingActionButton(
+                onClick = onAddAccount,
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("添加账号") },
             )
         },
     ) { padding ->
@@ -223,6 +234,7 @@ fun AccountCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
+        shape = MaterialTheme.shapes.large,
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -334,11 +346,20 @@ fun MiniProgressRow(
             }
         }
         Spacer(Modifier.height(2.dp))
-        LinearProgressIndicator(
-            progress = { ((percent ?: 0.0) / 100.0).toFloat().coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth().height(6.dp),
-            color = color,
-            trackColor = color.copy(alpha = 0.15f),
-        )
+        if (percent == null) {
+            LinearProgressIndicator(
+                progress = { 0f },
+                modifier = Modifier.fillMaxWidth().height(8.dp),
+                color = color,
+                trackColor = color.copy(alpha = 0.15f),
+            )
+        } else {
+            androidx.compose.material3.LinearWavyProgressIndicator(
+                progress = { (percent / 100.0).toFloat().coerceIn(0f, 1f) },
+                modifier = Modifier.fillMaxWidth().height(12.dp),
+                color = color,
+                trackColor = color.copy(alpha = 0.15f),
+            )
+        }
     }
 }

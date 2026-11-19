@@ -19,7 +19,9 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.13'
+          gradle-version: "9.9.1"
+      - name: Install Android platform 37.1
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.1" > /dev/null
       - name: Build debug APK
         run: gradle assembleDebug --no-daemon
       - name: Upload APK artifact
@@ -31,8 +33,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.2.0-debug
-          name: 额度看板 v0.2.0 (debug)
+          tag_name: v0.3.0-debug
+          name: 额度看板 v0.3.0 (debug)
           body: |
             自动构建的 debug APK，可直接安装（需允许安装未知来源应用）。
             要求 Android 8.0+（minSdk 26）。构建commit：${{ github.sha }}
