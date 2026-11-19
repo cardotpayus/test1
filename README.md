@@ -27,16 +27,22 @@ Android Studio 或本地 Gradle 8.9+，JDK 17，Android SDK（compileSdk 35）�
 # 产物：app/build/outputs/apk/debug/app-debug.apk
 ```
 
-## 服务商接入状态（v0.1.0 · 2026-11）
+## 服务商接入状态（v0.2.0 · 2026-11）
 
 | 服务 | 认证方式 | 订阅额度 | 按量余额 | 接口基础 |
 |---|---|---|---|---|
 | Claude | OAuth / API Key | ✅ OAuth 查询（公开用量接口，端点实测 401 鉴权） | ❌ 暂不支持（无公开 API Key 余额接口） | 端点真实存在 |
 | Codex (ChatGPT) | OAuth / API Key | ✅ OAuth 查询（wham/usage，端点实测 401） | ❌ 暂不支持 | 端点真实存在 |
-| Grok / xAI | Management Key | ❌ SuperGrok 无公开接口 | ✅ 预付余额（官方管理 API，端点实测可达） | 端点真实存在 |
+| Grok / xAI | API Key (Management) | ❌ SuperGrok 无公开接口 | ✅ 预付余额（官方管理 API，端点实测可达） | 端点真实存在 |
 | DeepSeek API | API Key | — | ✅ 余额（GET /user/balance，端点实测 401） | 官方公开接口 |
 | Mistral API | API Key | — | ✅ 积分余额（GET /v1/billing/subscription，端点实测 401） | 官方 CLI 同款接口 |
 | opencode go | API Key | ✅ 订阅窗口（GET /zen/go/v1/usage，按公开文档实现） | ❌ Zen 余额无公开接口 | 文档端点（沙箱被 Cloudflare 拦截，未能直连验证） |
+| OpenRouter | API Key | — | ✅ Credits 余额（GET /api/v1/credits，端点实测 401） | 官方公开接口 |
+| 智谱 GLM Coding Plan | API Key | ✅ Coding Plan 窗口（quota/limit，端点实测 401；国内 open.bigmodel.cn / 国际 api.z.ai） | ❌ 暂不支持 | 端点真实存在 |
+| Kimi Code | API Key | ✅ 订阅窗口（GET /coding/v1/usages，端点实测 401；窗口格式防御性解析） | ❌ Moonshot 平台余额无公开接口 | 端点真实存在 |
+| SiliconFlow 硅基流动 | API Key | — | ✅ 国际站余额（GET /v1/user/info，端点实测 401） | 官方公开接口 |
+
+关于 SiliconFlow：官方已于 2026-08 停用中国大陆站的 API Key 余额查询，国内站明确标注「暂不支持查询」；国际站 api.siliconflow.com 正常。
 
 **"实测"** 指在开发环境直接向该端点发起请求，确认接口存在且返回的是鉴权错误（而非 404），接口语义有官方文档或第一方开源实现佐证。OAuth 登录链路（Claude console.anthropic.com、Codex auth.openai.com）无法在开发环境完成真实账号授权，参数取自 codex CLI / Claude Code 官方开源实现，请在真机登录验证。
 

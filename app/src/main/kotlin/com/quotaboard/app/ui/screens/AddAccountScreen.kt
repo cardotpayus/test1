@@ -58,6 +58,7 @@ fun AddAccountScreen(
     var method by remember { mutableStateOf<AuthMethod?>(null) }
     var apiKey by remember { mutableStateOf("") }
     var teamId by remember { mutableStateOf("") }
+    var host by remember { mutableStateOf("") }
     var label by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
@@ -183,6 +184,14 @@ fun AddAccountScreen(
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
+                        if (p.id == "zai") {
+                            OutlinedTextField(
+                                value = host,
+                                onValueChange = { host = it },
+                                label = { Text("区域（可选）：国际 api.z.ai / 国内 open.bigmodel.cn") },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
                         Button(
                             onClick = {
                                 if (apiKey.isBlank()) {
@@ -198,7 +207,10 @@ fun AddAccountScreen(
                                     label = label,
                                     authMethod = AuthMethod.API_KEY,
                                     secrets = AccountSecrets(apiKey = apiKey.trim()),
-                                    extra = if (p.id == "grok") mapOf("teamId" to teamId.trim()) else emptyMap(),
+                                    extra = buildMap {
+                                        if (p.id == "grok") put("teamId", teamId.trim())
+                                        if (p.id == "zai" && host.isNotBlank()) put("host", host.trim())
+                                    },
                                 )
                                 onDone()
                             },
